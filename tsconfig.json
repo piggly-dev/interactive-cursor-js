@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		"target": "es6",
+		"module": "commonjs",
+		"strict": true,
+		"allowJs": false,
+		"esModuleInterop": true,
+		"sourceMap": false,
+		"noImplicitThis": true,
+		"baseUrl": ".",
+		"declaration": true,
+		"outDir": "./dist",
+		"paths": {
+			"@/*": [
+				"src/*",
+			],
+		},
+		"lib": [
+			"esnext",
+			"dom",
+			"dom.iterable",
+		],
+	},
+	"include": [
+		"./src/**/*"
+	],
+	"exclude": [
+		"./node_modules",
+		"./dist",
+		"./test"
+	]
+ }
