@@ -2,15 +2,14 @@
 	"name": "@piggly/interactive-cursor-js",
 	"version": "1.0.0-beta.1",
 	"description": "A lightweight library for creating a custom cursor which interact with pages and elements.",
-	"main": "lib/interactive.cursor.js",
-	"types": "lib/interactive.cursor.d.ts",
 	"scripts": {
-		"watch": "rm -rf dev/lib && tsc --outDir dev/lib && tsc --target es5 --outDir dev/es5 && browserify dev/es5/interactive.cursor.js --standalone interactive.cursor -o  dev/dist/interactive.cursor.js -p common-shakeify -p bundle-collapser/plugin && uglifyjs --compress --mangle -- dev/dist/interactive.cursor.js > dev/dist/interactive.cursor.min.js && rm -rf es5",
-		"build": "rm -rf lib && tsc",
-		"browser": "tsc --target es5 --outDir es5 && browserify es5/interactive.cursor.js --standalone interactive.cursor -o  dist/interactive.cursor.js -p common-shakeify  -p bundle-collapser/plugin && uglifyjs --compress --mangle -- dist/interactive.cursor.js > dist/interactive.cursor.min.js && rm -rf es5",
 		"lint": "eslint --ext .ts,.js --ignore-path .gitignore --fix src",
 		"format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-		"prepare": "npm run build && npm run browser",
+		"build:umd": "rimraf ./dist && rollup -c && cp -rf dist/ dev/dist",
+		"build:cjs": "rimraf ./lib && tsc --module commonjs --outDir lib",
+		"build:esm": "rimraf ./esm && tsc --module ESNext --outDir esm",
+		"build": "npm run build:cjs && npm run build:esm && npm run build:umd",
+		"prepare": "npm run build",
 		"version": "npm run format && git add -A src",
 		"postversion": "git push && git push --tags",
 		"prepublishOnly": "npm test && npm run lint",
@@ -18,8 +17,14 @@
 		"test": "jest",
 		"test:debug": "node --inspect node_modules/.bin/jest --runInBand"
 	},
+	"main": "lib/index.js",
+	"types": "lib/index.ts",
+	"module": "esm/index.js",
+	"unpkg": "dist/icursor.min.js",
+	"browser": "dist/icursor.min.js",
 	"files": [
 		"lib/**/*",
+		"esm/**/*",
 		"dist/**/*"
 	],
 	"keywords": [
@@ -41,9 +46,6 @@
 		"@typescript-eslint/eslint-plugin": "^5.21.0",
 		"@typescript-eslint/parser": "^5.21.0",
 		"@zerollup/ts-transform-paths": "^1.7.18",
-		"browserify": "^17.0.0",
-		"bundle-collapser": "^1.4.0",
-		"common-shakeify": "^0.6.2",
 		"eslint": "^8.14.0",
 		"eslint-config-airbnb-base": "^15.0.0",
 		"eslint-config-prettier": "^8.5.0",
@@ -52,8 +54,12 @@
 		"express": "^4.18.1",
 		"jest": "^27.5.1",
 		"prettier": "^2.6.2",
+		"rimraf": "^3.0.2",
+		"rollup": "^1.32.1",
+		"rollup-plugin-node-resolve": "^5.2.0",
+		"rollup-plugin-typescript": "^1.0.1",
+		"rollup-plugin-uglify": "^6.0.4",
 		"ts-jest": "^27.1.4",
-		"typescript": "^4.6.4",
-		"uglify-js": "^3.15.4"
+		"typescript": "^4.6.4"
 	}
 }

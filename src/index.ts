@@ -9,7 +9,7 @@ import {
 } from './types/interfaces';
 import { TOrNull } from './types/types';
 
-class InteractiveCursor {
+export default class InteractiveCursor {
 	/** Class Attributes */
 	private _defaults: Options = {
 		debug: false,
@@ -186,5 +186,3 @@ class InteractiveCursor {
 		return (1 - amt) * start + amt * end;
 	}
 }
-
-export { InteractiveCursor };
