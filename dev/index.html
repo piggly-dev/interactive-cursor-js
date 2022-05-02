@@ -27,7 +27,7 @@
 			width: 80px;
 			height: 80px;
 			line-height: 80px;
-			font-size: 1.1rem;
+			font-size: 11px;
 			font-weight: 600;
 			letter-spacing: .14384615em;
 			text-transform: uppercase;
@@ -36,7 +36,7 @@
 			left: 50%;
 			transform: translate3d(-50%, -50%, 0);
 			z-index: 1;
-			color: #000;
+			color: #FFF;
 		}
 
 		#interactive-cursor .cursor-icon {
@@ -54,19 +54,76 @@
 			transform: scale(.15);
 		}
 
-		#interactive-cursor.is-big .cursor-icon {
+		#interactive-cursor.is-large .cursor-icon {
 			transform: scale(1);
 		}
 
 		#interactive-cursor.is-medium .cursor-icon {
 			transform: scale(.475);
 		}
+
+		#interactive-cursor.is-medium .cursor-label {
+			top: -30px;
+			left: 50%;
+			transform: translate3d(-50%, 0, 0);
+			color: #000
+		}
+
+		#interactive-cursor.is-small .cursor-label {
+			top: -15px;
+			left: 50%;
+			transform: translate3d(-50%, 0, 0);
+			color: #000
+		}
+
+		.magnetize {
+			transition: transform .2s;
+		}
 	</style>
-	<script src="dist/icursor.min.js"></script>
+	<script src="dist/icursor.js"></script>
 </head>
 
 <body>
 	<h1>Interactive Cursor</h1>
+
+	<div style="padding: 25px; margin: 25px 0; width: 100px; display: table;">
+
+		<div data-cursor-type="large"
+			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+			Large size
+		</div>
+
+		<div data-cursor-type="medium"
+			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+			Medium size
+		</div>
+
+		<div data-cursor-type="small"
+			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+			Small size
+		</div>
+
+		<div data-cursor-type="large" data-cursor-text="large"
+			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+			Large size with "large" as text
+		</div>
+
+		<div data-cursor-type="medium" data-cursor-text="medium"
+			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+			Medium size with "medium" as text
+		</div>
+
+		<div data-cursor-type="small" data-cursor-text="small"
+			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+			Small size with "small" as text
+		</div>
+
+		<div class="magnetize" style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+			It is magnetic
+		</div>
+
+	</div>
+
 	<script>
 		new InteractiveCursor({
 			WRAPPER_ID: 'interactive-cursor',

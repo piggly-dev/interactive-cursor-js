@@ -5,7 +5,8 @@
 	"scripts": {
 		"lint": "eslint --ext .ts,.js --ignore-path .gitignore --fix src",
 		"format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-		"build:umd": "rimraf ./dist && rollup -c && cp -rf dist/ dev/dist",
+		"build:watch": "rimraf ./dev/dist && rollup -c rollup.config.dev.js -w",
+		"build:umd": "rimraf ./dist && rollup -c",
 		"build:cjs": "rimraf ./lib && tsc --module commonjs --outDir lib",
 		"build:esm": "rimraf ./esm && tsc --module ESNext --outDir esm",
 		"build": "npm run build:cjs && npm run build:esm && npm run build:umd",
@@ -61,5 +62,8 @@
 		"rollup-plugin-uglify": "^6.0.4",
 		"ts-jest": "^27.1.4",
 		"typescript": "^4.6.4"
+	},
+	"dependencies": {
+		"gsap": "^3.10.4"
 	}
 }
