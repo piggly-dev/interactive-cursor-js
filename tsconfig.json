@@ -9,7 +9,7 @@
 		"noImplicitThis": true,
 		"baseUrl": ".",
 		"declaration": true,
-		"outDir": "./dist",
+		"outDir": "./lib",
 		"paths": {
 			"@/*": [
 				"src/*",

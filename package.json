@@ -5,6 +5,7 @@
 	"main": "lib/interactive.cursor.js",
 	"types": "lib/interactive.cursor.d.ts",
 	"scripts": {
+		"watch": "rm -rf dev/lib && tsc --outDir dev/lib && tsc --target es5 --outDir dev/es5 && browserify dev/es5/interactive.cursor.js --standalone interactive.cursor -o  dev/dist/interactive.cursor.js -p common-shakeify -p bundle-collapser/plugin && uglifyjs --compress --mangle -- dev/dist/interactive.cursor.js > dev/dist/interactive.cursor.min.js && rm -rf es5",
 		"build": "rm -rf lib && tsc",
 		"browser": "tsc --target es5 --outDir es5 && browserify es5/interactive.cursor.js --standalone interactive.cursor -o  dist/interactive.cursor.js -p common-shakeify  -p bundle-collapser/plugin && uglifyjs --compress --mangle -- dist/interactive.cursor.js > dist/interactive.cursor.min.js && rm -rf es5",
 		"lint": "eslint --ext .ts,.js --ignore-path .gitignore --fix src",

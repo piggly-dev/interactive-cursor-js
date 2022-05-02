@@ -2,10 +2,78 @@
 
 <head>
 	<title>Interactive Cursor</title>
+	<style>
+		html.no-cursor,
+		html.no-cursor body,
+		html.no-cursor [data-cursor-type] {
+			cursor: none !important;
+		}
+
+		#interactive-cursor {
+			position: fixed;
+			text-align: center;
+			width: 80px;
+			height: 80px;
+			z-index: 1000;
+			-webkit-transform-origin: center center;
+			transform-origin: center center;
+			pointer-events: none;
+			mix-blend-mode: exclusion;
+			z-index: 99999;
+		}
+
+		#interactive-cursor .cursor-label {
+			display: block;
+			width: 80px;
+			height: 80px;
+			line-height: 80px;
+			font-size: 1.1rem;
+			font-weight: 600;
+			letter-spacing: .14384615em;
+			text-transform: uppercase;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate3d(-50%, -50%, 0);
+			z-index: 1;
+			color: #000;
+		}
+
+		#interactive-cursor .cursor-icon {
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+			display: block;
+			left: 0;
+			top: 0;
+			mix-blend-mode: exclusion;
+			background: #000;
+			width: 80px;
+			height: 80px;
+			transition: .3s ease-in-out;
+			border-radius: 100%;
+			transform: scale(.15);
+		}
+
+		#interactive-cursor.is-big .cursor-icon {
+			transform: scale(1);
+		}
+
+		#interactive-cursor.is-medium .cursor-icon {
+			transform: scale(.475);
+		}
+	</style>
+	<script src="dist/interactive.cursor.js"></script>
 </head>
 
 <body>
 	<h1>Interactive Cursor</h1>
+	<script>
+		new interactive.cursor.InteractiveCursor({
+			WRAPPER_ID: 'interactive-cursor',
+			LABEL_CLASS: 'cursor-label',
+			ICON_CLASS: 'cursor-icon'
+		});
+	</script>
 </body>
 
 </html>
