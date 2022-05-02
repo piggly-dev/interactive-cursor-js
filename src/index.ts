@@ -4,6 +4,7 @@ import {
 	CursorElement,
 	CursorPosition,
 	CursorStatus,
+	ElementMagnetized,
 	Options,
 } from './types/interfaces';
 import { TOrNull } from './types/types';
@@ -13,6 +14,7 @@ export default class InteractiveCursor {
 	private _defaults: Options = {
 		debug: false,
 		defaultCursor: { CURR_TYPE: 'small', CURR_TEXT: '' },
+		threshold: 50,
 		width: 80,
 	};
 
@@ -31,6 +33,8 @@ export default class InteractiveCursor {
 		},
 	};
 
+	private _magnetized?: ElementMagnetized;
+
 	private _components?: CursorComponents;
 
 	constructor(el: CursorElement, options?: Options) {
@@ -44,6 +48,7 @@ export default class InteractiveCursor {
 		this.bind();
 
 		requestAnimationFrame(this._render.bind(this));
+		requestAnimationFrame(this.magnetize.bind(this));
 	}
 
 	public createDOM(el: CursorElement) {
@@ -83,10 +88,8 @@ export default class InteractiveCursor {
 		this._position.clientX = e.clientX - center;
 		this._position.clientY = e.clientY - center;
 
-		// this.magnetize('.magnetize', e);
-
-		if (target.classList.contains('magnetize')) {
-			this.magnetize(target, e);
+		if (target.classList.contains('magnetize') && !this._magnetized) {
+			this._magnetize(target);
 		}
 	}
 
@@ -110,80 +113,37 @@ export default class InteractiveCursor {
 		}
 	}
 
-	public magnetize(el: HTMLElement, e: MouseEvent) {
-		const mX = e.clientX,
-			mY = e.clientY;
-
-		var customDist = 100;
-		var centerX = el.offsetLeft + el.clientWidth / 2;
-		var centerY = el.offsetTop + el.clientHeight / 2;
-
-		var deltaX = Math.floor(centerX - mX) * -0.45;
-		var deltaY = Math.floor(centerY - mY) * -0.45;
-
-		var distance = this.calculateDistance(el, mX, mY);
-
-		console.log(deltaX, deltaY);
-
-		if (distance < customDist) {
-			el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-			// gsap.to(item, {
-			// 	duration: 0.3,
-			// 	x: deltaX,
-			// 	y: deltaY,
-			// 	scale: 1.1,
-			// });
-			//TweenMax.to(item, 0.3, {y: deltaY, x: deltaX, scale:1.1});
-			el.classList.add('magnet');
-		} else {
-			el.style.transform = `translate(0, 0)`;
-			// gsap.to(item, {
-			// 	duration: 0.45,
-			// 	x: 0,
-			// 	y: 0,
-			// 	scale: 1,
-			// });
-			//TweenMax.to(item, 0.45, {y: 0, x: 0, scale:1});
-			el.classList.remove('magnet');
+	public magnetize() {
+		if (!this._magnetized) {
+			requestAnimationFrame(this.magnetize.bind(this));
+			return;
 		}
-	}
 
-	public magnetizeOld(css: string, e: MouseEvent) {
-		const mX = e.clientX,
-			mY = e.clientY;
+		const el = this._magnetized.el;
+		const bn = this._magnetized.bounding;
+		const center = this._defaults.width / 2;
 
-		const items = document.querySelectorAll(css);
+		const mX = this._position.clientX + center;
+		const mY = this._position.clientY + center;
 
-		[].forEach.call(items, (item: HTMLElement) => {
-			var customDist = 5 * 20 || 120;
-			var centerX = item.offsetLeft + item.clientWidth / 2;
-			var centerY = item.offsetTop + item.clientHeight / 2;
+		if (!(mX >= bn.x1 && mX <= bn.x2 && mY >= bn.y1 && mY <= bn.y2)) {
+			el.style.transform = `translate(0, 0) scale(1)`;
+			el.classList.remove('magnet');
 
-			var deltaX = Math.floor(centerX - mX) * -0.45;
-			var deltaY = Math.floor(centerY - mY) * -0.45;
+			this._magnetized = undefined;
+			requestAnimationFrame(this.magnetize.bind(this));
 
-			var distance = this.calculateDistance(item, mX, mY);
+			return;
+		}
 
-			if (distance < customDist) {
-				// gsap.to(item, {
-				// 	duration: 0.3,
-				// 	x: deltaX,
-				// 	y: deltaY,
-				// 	scale: 1.1,
-				// });
-				//TweenMax.to(item, 0.3, {y: deltaY, x: deltaX, scale:1.1});
-				item.classList.add('magnet');
-			} else {
-				// gsap.to(item, {
-				// 	duration: 0.45,
-				// 	x: 0,
-				// 	y: 0,
-				// 	scale: 1,
-				// });
-				//TweenMax.to(item, 0.45, {y: 0, x: 0, scale:1});
-				item.classList.remove('magnet');
-			}
-		});
+		const deltaX = Math.floor(this._magnetized.center.x - mX) * -0.25;
+		const deltaY = Math.floor(this._magnetized.center.y - mY) * -0.35;
+
+		el.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.2)`;
+		el.classList.add('magnet');
+
+		requestAnimationFrame(this.magnetize.bind(this));
+		return;
 	}
 
 	public calculateDistance(
@@ -202,6 +162,29 @@ export default class InteractiveCursor {
 	public resetCursor() {
 		this._applyToCursor(this._defaults.defaultCursor);
 		this._status.CURSOR = { ...this._defaults.defaultCursor };
+	}
+
+	private _magnetize(el: HTMLElement) {
+		const th = this._defaults.threshold;
+
+		const x1 = el.getBoundingClientRect().x - th;
+		const x2 = x1 + el.getBoundingClientRect().width + th * 2;
+		const y1 = el.getBoundingClientRect().y - th;
+		const y2 = y1 + el.getBoundingClientRect().height + th * 2;
+
+		this._magnetized = {
+			el,
+			center: {
+				x: (x2 - x1) / 2 + x1,
+				y: (y2 - y1) / 2 + y1,
+			},
+			bounding: {
+				x1,
+				x2,
+				y1,
+				y2,
+			},
+		};
 	}
 
 	private _render(): void {

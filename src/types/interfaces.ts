@@ -39,5 +39,20 @@ export interface CursorComponents {
 export interface Options {
 	debug: boolean;
 	defaultCursor: Cursor;
+	threshold: number;
 	width: number;
+}
+
+export interface ElementMagnetized {
+	el: HTMLElement;
+	center: {
+		x: number;
+		y: number;
+	};
+	bounding: {
+		x1: number;
+		x2: number;
+		y1: number;
+		y2: number;
+	};
 }
