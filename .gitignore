@@ -1,40 +1,15 @@
 # FOLDERS
 # - REMOVE
-vendor
 node_modules
 dist
-build
 lib
-es5
-cjs
-es
+esm
 debug
-.hg
-.svn
-.CVS
-intermediate
 .idea
 cache
-Docker/data
 coverage
 rules
-debug
-todo.md
-_env.ts
 
-# FILES
-# Numerous always-ignore extensions
-*.diff
-*.err
-*.orig
-*.log
-*.rej
-*.swo
-*.swp
-*.vi
-*~
-*.sass-cache
-*.phpunit*
 
 # OS or Editor folders
 ._.DS_Store
