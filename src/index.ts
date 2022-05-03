@@ -15,6 +15,9 @@ export default class InteractiveCursor {
 		debug: false,
 		defaultCursor: { CURR_TYPE: 'small', CURR_TEXT: '' },
 		threshold: 50,
+		magnetizeAnimationFn: (el, delta, scale) => {
+			el.style.transform = `translate(${delta.x}px, ${delta.y}px) scale(${scale})`;
+		},
 		width: 80,
 	};
 
@@ -127,7 +130,7 @@ export default class InteractiveCursor {
 		const mY = this._position.clientY + center;
 
 		if (!(mX >= bn.x1 && mX <= bn.x2 && mY >= bn.y1 && mY <= bn.y2)) {
-			el.style.transform = `translate(0, 0) scale(1)`;
+			this._defaults.magnetizeAnimationFn(el, { x: 0, y: 0 }, 1);
 			el.classList.remove('magnet');
 
 			this._magnetized = undefined;
@@ -139,7 +142,11 @@ export default class InteractiveCursor {
 		const deltaX = Math.floor(this._magnetized.center.x - mX) * -0.25;
 		const deltaY = Math.floor(this._magnetized.center.y - mY) * -0.35;
 
-		el.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(1.2)`;
+		this._defaults.magnetizeAnimationFn(
+			el,
+			{ x: deltaX, y: deltaY },
+			1.2
+		);
 		el.classList.add('magnet');
 
 		requestAnimationFrame(this.magnetize.bind(this));

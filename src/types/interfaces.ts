@@ -39,6 +39,11 @@ export interface CursorComponents {
 export interface Options {
 	debug: boolean;
 	defaultCursor: Cursor;
+	magnetizeAnimationFn: (
+		el: HTMLElement,
+		delta: { x: number; y: number },
+		scale: number
+	) => void;
 	threshold: number;
 	width: number;
 }
