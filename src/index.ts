@@ -1,3 +1,4 @@
+import { deepmerge } from 'deepmerge-ts';
 import {
 	Cursor,
 	CursorComponents,
@@ -46,7 +47,8 @@ export default class InteractiveCursor {
 	private _components?: CursorComponents;
 
 	constructor(el: Partial<CursorElement>, options: Partial<Options> = {}) {
-		this._options = { ...this._options, ...options };
+		this._options = deepmerge(this._options, options) as Options;
+
 		this._status = {
 			last_target: null,
 			cursor: { ...this._options.cursor },
