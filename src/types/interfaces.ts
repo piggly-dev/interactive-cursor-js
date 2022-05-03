@@ -1,8 +1,9 @@
 import { TCursorTypes, TOrNull } from './types';
 
 export interface Cursor {
-	CURR_TYPE: TCursorTypes;
-	CURR_TEXT: string;
+	type: TCursorTypes;
+	text: string;
+	width: number;
 }
 
 export interface CursorPosition {
@@ -20,8 +21,8 @@ export interface CursorSizes {
 }
 
 export interface CursorStatus {
-	LAST_TARGET: TOrNull<HTMLElement>;
-	CURSOR: Cursor;
+	last_target: TOrNull<HTMLElement>;
+	cursor: Cursor;
 }
 
 export interface CursorElement {
@@ -37,14 +38,21 @@ export interface CursorComponents {
 }
 
 export interface Options {
+	cursor: Cursor;
 	debug: boolean;
-	defaultCursor: Cursor;
-	magnetizeAnimationFn: (
-		el: HTMLElement,
-		delta: { x: number; y: number },
-		scale: number
-	) => void;
-	threshold: number;
+	magnetize: {
+		enabled: boolean;
+		fn: (
+			el: HTMLElement,
+			delta: { x: number; y: number },
+			scale: number
+		) => void;
+		threshold: number;
+		velocity: {
+			x: number;
+			y: number;
+		};
+	};
 	width: number;
 }
 

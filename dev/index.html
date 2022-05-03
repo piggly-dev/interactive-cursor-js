@@ -66,14 +66,16 @@
 			LABEL_CLASS: 'cursor-label',
 			ICON_CLASS: 'cursor-icon'
 		}, {
-			magnetizeAnimationFn: (el, delta, scale) => {
-				anime({
-					targets: el,
-					translateX: delta.x,
-					translateY: delta.y,
-					scale: scale,
-					duration: 300
-				});
+			magnetize: {
+				fn: (el, delta, scale) => {
+					anime({
+						targets: el,
+						translateX: delta.x,
+						translateY: delta.y,
+						scale: scale,
+						duration: 300
+					});
+				}
 			}
 		});
 	</script>

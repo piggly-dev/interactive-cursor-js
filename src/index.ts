@@ -11,12 +11,23 @@ import { TOrNull } from './types/types';
 
 export default class InteractiveCursor {
 	/** Class Attributes */
-	private _defaults: Options = {
+	private _options: Options = {
 		debug: false,
-		defaultCursor: { CURR_TYPE: 'small', CURR_TEXT: '' },
-		threshold: 50,
-		magnetizeAnimationFn: (el, delta, scale) => {
-			el.style.transform = `translate(${delta.x}px, ${delta.y}px) scale(${scale})`;
+		cursor: {
+			type: 'small',
+			text: '',
+			width: 80,
+		},
+		magnetize: {
+			enabled: true,
+			fn: (el, delta, scale) => {
+				el.style.transform = `translate(${delta.x}px, ${delta.y}px) scale(${scale})`;
+			},
+			threshold: 50,
+			velocity: {
+				x: 0.25,
+				y: 0.35,
+			},
 		},
 		width: 80,
 	};
@@ -28,26 +39,28 @@ export default class InteractiveCursor {
 		clientY: -100,
 	};
 
-	private _status: CursorStatus = {
-		LAST_TARGET: null,
-		CURSOR: {
-			CURR_TYPE: 'small',
-			CURR_TEXT: '',
-		},
-	};
+	private _status: CursorStatus;
 
 	private _magnetized?: ElementMagnetized;
 
 	private _components?: CursorComponents;
 
-	constructor(el: CursorElement, options?: Options) {
-		if (options)
-			Object.keys(options).forEach(key => {
-				// @ts-ignore
-				this._defaults[key] = options[key];
-			});
+	constructor(el: Partial<CursorElement>, options: Partial<Options> = {}) {
+		this._options = { ...this._options, ...options };
+		this._status = {
+			last_target: null,
+			cursor: { ...this._options.cursor },
+		};
 
-		this.createDOM(el);
+		console.log(this._options);
+
+		this.createDOM({
+			WRAPPER_ID: 'interactive-cursor',
+			LABEL_CLASS: 'cursor-label',
+			ICON_CLASS: 'cursor-icon',
+			...el,
+		});
+
 		this.bind();
 
 		requestAnimationFrame(this._render.bind(this));
@@ -85,7 +98,7 @@ export default class InteractiveCursor {
 	}
 
 	public cursorMove(e: MouseEvent) {
-		const center = this._defaults.width / 2;
+		const center = this._options.width / 2;
 		const target = e.target as HTMLElement;
 
 		this._position.clientX = e.clientX - center;
@@ -104,14 +117,11 @@ export default class InteractiveCursor {
 		} else {
 			if (
 				target.tagName === 'BODY' ||
-				!this._isDescendant(this._status.LAST_TARGET, target)
+				!this._isDescendant(this._status.last_target, target)
 			) {
 				this.resetCursor();
-			} else if (
-				this._status.CURSOR.CURR_TYPE !== null &&
-				this._components
-			) {
-				this._applyToCursor(this._status.CURSOR);
+			} else if (this._status.cursor.type !== null && this._components) {
+				this._applyToCursor(this._status.cursor);
 			}
 		}
 	}
@@ -122,16 +132,24 @@ export default class InteractiveCursor {
 			return;
 		}
 
-		const el = this._magnetized.el;
-		const bn = this._magnetized.bounding;
-		const center = this._defaults.width / 2;
+		const magEl = this._magnetized;
+
+		const el = magEl.el;
+		const center = this._options.width / 2;
 
 		const mX = this._position.clientX + center;
 		const mY = this._position.clientY + center;
 
-		if (!(mX >= bn.x1 && mX <= bn.x2 && mY >= bn.y1 && mY <= bn.y2)) {
-			this._defaults.magnetizeAnimationFn(el, { x: 0, y: 0 }, 1);
-			el.classList.remove('magnet');
+		if (
+			!(
+				mX >= magEl.bounding.x1 &&
+				mX <= magEl.bounding.x2 &&
+				mY >= magEl.bounding.y1 &&
+				mY <= magEl.bounding.y2
+			)
+		) {
+			this._options.magnetize.fn(el, { x: 0, y: 0 }, 1);
+			el.classList.remove('is-on');
 
 			this._magnetized = undefined;
 			requestAnimationFrame(this.magnetize.bind(this));
@@ -139,15 +157,15 @@ export default class InteractiveCursor {
 			return;
 		}
 
-		const deltaX = Math.floor(this._magnetized.center.x - mX) * -0.25;
-		const deltaY = Math.floor(this._magnetized.center.y - mY) * -0.35;
+		const deltaX =
+			Math.floor(magEl.center.x - mX) *
+			-this._options.magnetize.velocity.x;
+		const deltaY =
+			Math.floor(magEl.center.y - mY) *
+			-this._options.magnetize.velocity.y;
 
-		this._defaults.magnetizeAnimationFn(
-			el,
-			{ x: deltaX, y: deltaY },
-			1.2
-		);
-		el.classList.add('magnet');
+		this._options.magnetize.fn(el, { x: deltaX, y: deltaY }, 1.2);
+		el.classList.add('is-on');
 
 		requestAnimationFrame(this.magnetize.bind(this));
 		return;
@@ -167,12 +185,12 @@ export default class InteractiveCursor {
 	}
 
 	public resetCursor() {
-		this._applyToCursor(this._defaults.defaultCursor);
-		this._status.CURSOR = { ...this._defaults.defaultCursor };
+		this._applyToCursor(this._options.cursor);
+		this._status.cursor = { ...this._options.cursor };
 	}
 
 	private _magnetize(el: HTMLElement) {
-		const th = this._defaults.threshold;
+		const th = this._options.magnetize.threshold;
 
 		const x1 = el.getBoundingClientRect().x - th;
 		const x2 = x1 + el.getBoundingClientRect().width + th * 2;
@@ -217,21 +235,22 @@ export default class InteractiveCursor {
 		const text = this._getData(el, 'cursorText') ?? '';
 
 		this._status = {
-			LAST_TARGET: el,
-			CURSOR: {
-				CURR_TYPE: type,
-				CURR_TEXT: text,
+			last_target: el,
+			cursor: {
+				...this._status.cursor,
+				type,
+				text,
 			},
 		};
 
-		this._applyToCursor(this._status.CURSOR);
+		this._applyToCursor(this._status.cursor);
 	}
 
 	private _applyToCursor(cursor: Cursor): void {
 		if (!this._components) return;
 
-		this._components.wrapper.className = `is-${cursor.CURR_TYPE}`;
-		this._components.label.textContent = cursor.CURR_TEXT;
+		this._components.wrapper.className = `is-${cursor.type}`;
+		this._components.label.textContent = cursor.text;
 	}
 
 	private _isDescendant(parent: TOrNull<HTMLElement>, child: HTMLElement) {
