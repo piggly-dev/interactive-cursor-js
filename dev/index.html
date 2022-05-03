@@ -2,123 +2,59 @@
 
 <head>
 	<title>Interactive Cursor</title>
-	<style>
-		html.no-cursor,
-		html.no-cursor body,
-		html.no-cursor [data-cursor-type] {
-			cursor: none !important;
-		}
-
-		#interactive-cursor {
-			position: fixed;
-			text-align: center;
-			width: 80px;
-			height: 80px;
-			z-index: 1000;
-			-webkit-transform-origin: center center;
-			transform-origin: center center;
-			pointer-events: none;
-			mix-blend-mode: exclusion;
-			z-index: 99999;
-		}
-
-		#interactive-cursor .cursor-label {
-			display: block;
-			width: 80px;
-			height: 80px;
-			line-height: 80px;
-			font-size: 11px;
-			font-weight: 600;
-			letter-spacing: .14384615em;
-			text-transform: uppercase;
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate3d(-50%, -50%, 0);
-			z-index: 1;
-			color: #FFF;
-		}
-
-		#interactive-cursor .cursor-icon {
-			-webkit-backface-visibility: hidden;
-			backface-visibility: hidden;
-			display: block;
-			left: 0;
-			top: 0;
-			mix-blend-mode: exclusion;
-			background: #000;
-			width: 80px;
-			height: 80px;
-			transition: .3s ease-in-out;
-			border-radius: 100%;
-			transform: scale(.15);
-		}
-
-		#interactive-cursor.is-large .cursor-icon {
-			transform: scale(1);
-		}
-
-		#interactive-cursor.is-medium .cursor-icon {
-			transform: scale(.475);
-		}
-
-		#interactive-cursor.is-medium .cursor-label {
-			top: -30px;
-			left: 50%;
-			transform: translate3d(-50%, 0, 0);
-			color: #000
-		}
-
-		#interactive-cursor.is-small .cursor-label {
-			top: -15px;
-			left: 50%;
-			transform: translate3d(-50%, 0, 0);
-			color: #000
-		}
-
-		.magnetize {
-			transition: transform .2s;
-		}
-	</style>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="./style.css" />
+	<link rel="stylesheet" type="text/css" href="./icursor.css" />
 	<script src="dist/icursor.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 </head>
 
 <body>
-	<h1>Interactive Cursor</h1>
+	<h1>
+		Interactive Cursor
+		<span>by <a href="https://studio.piggly.com.br">piggly.studio</a></span>
+	</h1>
 
-	<div style="padding: 25px; margin: 25px 0; width: 100px; display: table;">
+	<p>
+		Interactive Cursor is a lightweight library for creating a custom cursor that
+		interacts with pages and elements with responsiveness.
+	</p>
 
-		<div data-cursor-type="large"
-			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+	<h2>Playground</h2>
+
+	<p>
+		Cursor over elements below and see the magic happens.
+	</p>
+
+	<div id="wrapper">
+
+		<div data-cursor-type="large" class="box">
 			Large size
 		</div>
 
-		<div data-cursor-type="medium"
-			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+		<div data-cursor-type="medium" class="box">
 			Medium size
 		</div>
 
-		<div data-cursor-type="small"
-			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+		<div data-cursor-type="small" class="box">
 			Small size
 		</div>
 
-		<div data-cursor-type="large" data-cursor-text="large"
-			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+		<div data-cursor-type="large" data-cursor-text="large" class="box">
 			Large size with "large" as text
 		</div>
 
-		<div data-cursor-type="medium" data-cursor-text="medium"
-			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+		<div data-cursor-type="medium" data-cursor-text="medium" class="box">
 			Medium size with "medium" as text
 		</div>
 
-		<div data-cursor-type="small" data-cursor-text="small"
-			style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+		<div data-cursor-type="small" data-cursor-text="small" class="box">
 			Small size with "small" as text
 		</div>
 
-		<div class="magnetize" style="padding: 25px; margin: 25px 0; width: 100%; display: table; border: 1px solid #000">
+		<div class="magnetize box">
 			It is magnetic
 		</div>
 
@@ -129,6 +65,16 @@
 			WRAPPER_ID: 'interactive-cursor',
 			LABEL_CLASS: 'cursor-label',
 			ICON_CLASS: 'cursor-icon'
+		}, {
+			magnetizeAnimationFn: (el, delta, scale) => {
+				anime({
+					targets: el,
+					translateX: delta.x,
+					translateY: delta.y,
+					scale: scale,
+					duration: 300
+				});
+			}
 		});
 	</script>
 </body>

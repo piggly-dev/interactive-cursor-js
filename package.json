@@ -1,7 +1,7 @@
 {
 	"name": "@piggly/interactive-cursor-js",
 	"version": "1.0.0-beta.1",
-	"description": "A lightweight library for creating a custom cursor which interact with pages and elements.",
+	"description": "A lightweight library for creating a custom cursor that interacts with pages and elements with responsiveness.",
 	"scripts": {
 		"lint": "eslint --ext .ts,.js --ignore-path .gitignore --fix src",
 		"format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
