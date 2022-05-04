@@ -64,6 +64,13 @@ export default class InteractiveCursor {
 		this.bind();
 	}
 
+	public applyToCursor(cursor: Pick<Cursor, 'type' | 'text'>): void {
+		if (!this._components) return;
+
+		this._components.wrapper.className = `is-${cursor.type}`;
+		this._components.label.textContent = cursor.text;
+	}
+
 	public render() {
 		requestAnimationFrame(this._render.bind(this));
 		requestAnimationFrame(this._magnetize.bind(this));
@@ -100,15 +107,8 @@ export default class InteractiveCursor {
 	}
 
 	public resetCursor() {
-		this._applyToCursor(this._options.cursor);
+		this.applyToCursor(this._options.cursor);
 		this._status.cursor = { ...this._options.cursor };
-	}
-
-	private _applyToCursor(cursor: Cursor): void {
-		if (!this._components) return;
-
-		this._components.wrapper.className = `is-${cursor.type}`;
-		this._components.label.textContent = cursor.text;
 	}
 
 	private _cursorMove(e: MouseEvent) {
@@ -135,7 +135,7 @@ export default class InteractiveCursor {
 			) {
 				this.resetCursor();
 			} else if (this._status.cursor.type !== null && this._components) {
-				this._applyToCursor(this._status.cursor);
+				this.applyToCursor(this._status.cursor);
 			}
 		}
 	}
@@ -296,6 +296,6 @@ export default class InteractiveCursor {
 			},
 		};
 
-		this._applyToCursor(this._status.cursor);
+		this.applyToCursor(this._status.cursor);
 	}
 }
