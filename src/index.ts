@@ -184,8 +184,15 @@ export default class InteractiveCursor {
 		};
 	}
 
+	/**
+	 * Get a data by its index on element dataset.
+	 *
+	 * @param {HTMLElement} el
+	 * @param {string} data
+	 * @returns {TOrNull<any>}
+	 */
 	private _getData(el: HTMLElement, data: string): any {
-		if (el.dataset[data]) {
+		if (el.dataset[data] !== undefined) {
 			const value: any = el.dataset[data];
 
 			if (value === 'false') {
