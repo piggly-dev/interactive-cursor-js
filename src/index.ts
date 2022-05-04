@@ -64,9 +64,11 @@ export default class InteractiveCursor {
 		});
 
 		this.bind();
+	}
 
+	public render() {
 		requestAnimationFrame(this._render.bind(this));
-		requestAnimationFrame(this.magnetize.bind(this));
+		requestAnimationFrame(this._magnetize.bind(this));
 	}
 
 	public createDOM(el: CursorElement) {
@@ -95,11 +97,23 @@ export default class InteractiveCursor {
 	}
 
 	public bind() {
-		document.addEventListener('mousemove', this.cursorMove.bind(this));
-		document.addEventListener('mouseover', this.cursorOver.bind(this));
+		document.addEventListener('mousemove', this._cursorMove.bind(this));
+		document.addEventListener('mouseover', this._cursorOver.bind(this));
 	}
 
-	public cursorMove(e: MouseEvent) {
+	public resetCursor() {
+		this._applyToCursor(this._options.cursor);
+		this._status.cursor = { ...this._options.cursor };
+	}
+
+	private _applyToCursor(cursor: Cursor): void {
+		if (!this._components) return;
+
+		this._components.wrapper.className = `is-${cursor.type}`;
+		this._components.label.textContent = cursor.text;
+	}
+
+	private _cursorMove(e: MouseEvent) {
 		const center = this._options.width / 2;
 		const target = e.target as HTMLElement;
 
@@ -107,11 +121,11 @@ export default class InteractiveCursor {
 		this._position.clientY = e.clientY - center;
 
 		if (target.classList.contains('magnetize') && !this._magnetized) {
-			this._magnetize(target);
+			this._elCoordinates(target);
 		}
 	}
 
-	public cursorOver(e: MouseEvent) {
+	private _cursorOver(e: MouseEvent) {
 		const target = e.target as HTMLElement;
 
 		if (this._getData(target, 'cursorType')) {
@@ -128,9 +142,70 @@ export default class InteractiveCursor {
 		}
 	}
 
-	public magnetize() {
+	private _elCoordinates(el: HTMLElement) {
+		const th = this._options.magnetize.threshold;
+
+		const x1 = el.getBoundingClientRect().x - th;
+		const x2 = x1 + el.getBoundingClientRect().width + th * 2;
+		const y1 = el.getBoundingClientRect().y - th;
+		const y2 = y1 + el.getBoundingClientRect().height + th * 2;
+
+		this._magnetized = {
+			el,
+			center: {
+				x: (x2 - x1) / 2 + x1,
+				y: (y2 - y1) / 2 + y1,
+			},
+			bounding: {
+				x1,
+				x2,
+				y1,
+				y2,
+			},
+		};
+	}
+
+	private _getData(el: HTMLElement, data: string): any {
+		if (el.dataset[data]) {
+			const value: any = el.dataset[data];
+
+			if (value === 'false') {
+				return false;
+			} else if (value === 'true') {
+				return true;
+			}
+
+			return value;
+		}
+
+		return null;
+	}
+
+	private _isDescendant(parent: TOrNull<HTMLElement>, child: HTMLElement) {
+		if (parent === null) {
+			return false;
+		}
+
+		var node = child.parentNode;
+
+		while (node !== null) {
+			if (node === parent) {
+				return true;
+			}
+
+			node = node.parentNode;
+		}
+
+		return false;
+	}
+
+	private _lerp(start: number, end: number, amt: number): number {
+		return (1 - amt) * start + amt * end;
+	}
+
+	private _magnetize() {
 		if (!this._magnetized) {
-			requestAnimationFrame(this.magnetize.bind(this));
+			requestAnimationFrame(this._magnetize.bind(this));
 			return;
 		}
 
@@ -154,7 +229,7 @@ export default class InteractiveCursor {
 			el.classList.remove('is-on');
 
 			this._magnetized = undefined;
-			requestAnimationFrame(this.magnetize.bind(this));
+			requestAnimationFrame(this._magnetize.bind(this));
 
 			return;
 		}
@@ -169,49 +244,8 @@ export default class InteractiveCursor {
 		this._options.magnetize.fn(el, { x: deltaX, y: deltaY }, 1.2);
 		el.classList.add('is-on');
 
-		requestAnimationFrame(this.magnetize.bind(this));
+		requestAnimationFrame(this._magnetize.bind(this));
 		return;
-	}
-
-	public calculateDistance(
-		el: HTMLElement,
-		mouseX: number,
-		mouseY: number
-	) {
-		return Math.floor(
-			Math.sqrt(
-				Math.pow(mouseX - (el.offsetLeft + el.clientWidth / 2), 2) +
-					Math.pow(mouseY - (el.offsetTop + el.clientHeight / 2), 2)
-			)
-		);
-	}
-
-	public resetCursor() {
-		this._applyToCursor(this._options.cursor);
-		this._status.cursor = { ...this._options.cursor };
-	}
-
-	private _magnetize(el: HTMLElement) {
-		const th = this._options.magnetize.threshold;
-
-		const x1 = el.getBoundingClientRect().x - th;
-		const x2 = x1 + el.getBoundingClientRect().width + th * 2;
-		const y1 = el.getBoundingClientRect().y - th;
-		const y2 = y1 + el.getBoundingClientRect().height + th * 2;
-
-		this._magnetized = {
-			el,
-			center: {
-				x: (x2 - x1) / 2 + x1,
-				y: (y2 - y1) / 2 + y1,
-			},
-			bounding: {
-				x1,
-				x2,
-				y1,
-				y2,
-			},
-		};
 	}
 
 	private _render(): void {
@@ -246,50 +280,5 @@ export default class InteractiveCursor {
 		};
 
 		this._applyToCursor(this._status.cursor);
-	}
-
-	private _applyToCursor(cursor: Cursor): void {
-		if (!this._components) return;
-
-		this._components.wrapper.className = `is-${cursor.type}`;
-		this._components.label.textContent = cursor.text;
-	}
-
-	private _isDescendant(parent: TOrNull<HTMLElement>, child: HTMLElement) {
-		if (parent === null) {
-			return false;
-		}
-
-		var node = child.parentNode;
-
-		while (node !== null) {
-			if (node === parent) {
-				return true;
-			}
-
-			node = node.parentNode;
-		}
-
-		return false;
-	}
-
-	private _getData(el: HTMLElement, data: string): any {
-		if (el.dataset[data]) {
-			const value: any = el.dataset[data];
-
-			if (value === 'false') {
-				return false;
-			} else if (value === 'true') {
-				return true;
-			}
-
-			return value;
-		}
-
-		return null;
-	}
-
-	private _lerp(start: number, end: number, amt: number): number {
-		return (1 - amt) * start + amt * end;
 	}
 }
