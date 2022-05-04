@@ -18,6 +18,7 @@ export default class InteractiveCursor {
 			type: 'small',
 			text: '',
 			width: 80,
+			interpolation: 0.2,
 		},
 		magnetize: {
 			enabled: true,
@@ -30,7 +31,6 @@ export default class InteractiveCursor {
 				y: 0.35,
 			},
 		},
-		width: 80,
 	};
 
 	private _position: CursorPosition = {
@@ -53,8 +53,6 @@ export default class InteractiveCursor {
 			last_target: null,
 			cursor: { ...this._options.cursor },
 		};
-
-		console.log(this._options);
 
 		this.createDOM({
 			WRAPPER_ID: 'interactive-cursor',
@@ -114,7 +112,7 @@ export default class InteractiveCursor {
 	}
 
 	private _cursorMove(e: MouseEvent) {
-		const center = this._options.width / 2;
+		const center = this._options.cursor.width / 2;
 		const target = e.target as HTMLElement;
 
 		this._position.clientX = e.clientX - center;
@@ -199,6 +197,19 @@ export default class InteractiveCursor {
 		return false;
 	}
 
+	/**
+	 * Calculates a number between two numbers at a specific increment.
+	 * The amt param is the amount to interpolate between to two values
+	 * where 0.0 equal to the first point, 0.1 is very near the first
+	 * point, 0.5 is half-way in between, etc.
+	 *
+	 * It will create a sense of motion when applied to a value.
+	 *
+	 * @param {number} start Start point
+	 * @param {number} end End point
+	 * @param {number} amt Value to interpolate
+	 * @returns {number}
+	 */
 	private _lerp(start: number, end: number, amt: number): number {
 		return (1 - amt) * start + amt * end;
 	}
@@ -212,7 +223,7 @@ export default class InteractiveCursor {
 		const magEl = this._magnetized;
 
 		const el = magEl.el;
-		const center = this._options.width / 2;
+		const center = this._options.cursor.width / 2;
 
 		const mX = this._position.clientX + center;
 		const mY = this._position.clientY + center;
@@ -257,11 +268,17 @@ export default class InteractiveCursor {
 			this._components.wrapper.getBoundingClientRect().y;
 
 		this._components.wrapper.style.left =
-			this._lerp(this._position.currentX, this._position.clientX, 0.2) +
-			'px';
+			this._lerp(
+				this._position.currentX,
+				this._position.clientX,
+				this._options.cursor.interpolation
+			) + 'px';
 		this._components.wrapper.style.top =
-			this._lerp(this._position.currentY, this._position.clientY, 0.2) +
-			'px';
+			this._lerp(
+				this._position.currentY,
+				this._position.clientY,
+				this._options.cursor.interpolation
+			) + 'px';
 
 		requestAnimationFrame(this._render.bind(this));
 	}

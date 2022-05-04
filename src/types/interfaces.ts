@@ -4,6 +4,7 @@ export interface Cursor {
 	type: TCursorTypes;
 	text: string;
 	width: number;
+	interpolation: 0.2;
 }
 
 export interface CursorPosition {
@@ -53,7 +54,6 @@ export interface Options {
 			y: number;
 		};
 	};
-	width: number;
 }
 
 export interface ElementMagnetized {
