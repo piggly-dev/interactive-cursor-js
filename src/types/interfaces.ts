@@ -56,8 +56,7 @@ export interface Options {
 	};
 }
 
-export interface ElementMagnetized {
-	el: HTMLElement;
+export interface ElementCoordinates {
 	center: {
 		x: number;
 		y: number;
@@ -68,4 +67,8 @@ export interface ElementMagnetized {
 		y1: number;
 		y2: number;
 	};
+}
+
+export interface ElementMagnetized extends ElementCoordinates {
+	el: HTMLElement;
 }

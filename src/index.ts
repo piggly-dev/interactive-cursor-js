@@ -5,6 +5,7 @@ import {
 	CursorElement,
 	CursorPosition,
 	CursorStatus,
+	ElementCoordinates,
 	ElementMagnetized,
 	Options,
 } from './types/interfaces';
@@ -64,6 +65,13 @@ export default class InteractiveCursor {
 		this.bind();
 	}
 
+	/**
+	 * Apply type and text to active cursor
+	 * HTML element.
+	 *
+	 * @param {Cursor} cursor
+	 * @returns {void}
+	 */
 	public applyToCursor(cursor: Pick<Cursor, 'type' | 'text'>): void {
 		if (!this._components) return;
 
@@ -119,7 +127,13 @@ export default class InteractiveCursor {
 		this._position.clientY = e.clientY - center;
 
 		if (target.classList.contains('magnetize') && !this._magnetized) {
-			this._elCoordinates(target);
+			this._magnetized = {
+				el: target,
+				...this._elCoordinates(
+					target,
+					this._options.magnetize.threshold
+				),
+			};
 		}
 	}
 
@@ -140,16 +154,23 @@ export default class InteractiveCursor {
 		}
 	}
 
-	private _elCoordinates(el: HTMLElement) {
-		const th = this._options.magnetize.threshold;
-
+	/**
+	 * Calculates the coordinates and the center point
+	 * of an HTML element.
+	 *
+	 * @param {HTMLElement} el
+	 * @returns {ElementCoordinates}
+	 */
+	private _elCoordinates(
+		el: HTMLElement,
+		th: number = 50
+	): ElementCoordinates {
 		const x1 = el.getBoundingClientRect().x - th;
 		const x2 = x1 + el.getBoundingClientRect().width + th * 2;
 		const y1 = el.getBoundingClientRect().y - th;
 		const y2 = y1 + el.getBoundingClientRect().height + th * 2;
 
-		this._magnetized = {
-			el,
+		return {
 			center: {
 				x: (x2 - x1) / 2 + x1,
 				y: (y2 - y1) / 2 + y1,
